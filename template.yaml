@@ -1,9 +1,9 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: domain-multi-step-generator
-  title: Domain Multi-Step Stack Generator
-  description: Select domain, frontend, backend, and database step-by-step with domain-based options
+  name: simple-dependent-stack
+  title: Simple Dependent Tech Stack
+  description: Choose domain, then tech stacks filter based on that
   tags:
     - generator
     - frontend
@@ -15,7 +15,7 @@ spec:
   type: service
 
   parameters:
-    - title: Domain Selection
+    - title: Project Stack Selection
       required:
         - domain
       properties:
@@ -27,154 +27,102 @@ spec:
             - Insurance
             - HealthCare
             - Education
-    - title: Repository URL
-      required:
-        - repoUrl
-      properties:
-        repoUrl:
-          title: Repository Location
-          type: string
-          ui:field: RepoUrlPicker
-          ui:options:
-            allowedHosts:
-              - github.com
-              - github.kyndryl.net
+
+      dependencies:
+        domain:
+          oneOf:
+            - properties:
+                domain:
+                  const: Banking
+                frontend:
+                  title: UI Framework
+                  type: string
+                  enum: [Vue.js, Next.js, Typescript]
+                backend:
+                  title: Backend Platform
+                  type: string
+                  enum: [Java, Python, Ruby]
+                database:
+                  title: Database
+                  type: string
+                  enum: [MYSQL, PostgreSQL]
+              required:
+                - frontend
+                - backend
+                - database
+
+            - properties:
+                domain:
+                  const: Insurance
+                frontend:
+                  title: UI Framework
+                  type: string
+                  enum: [React, Angular]
+                backend:
+                  title: Backend Platform
+                  type: string
+                  enum: [Scala, Go, Django]
+                database:
+                  title: Database
+                  type: string
+                  enum: [MYSQL, PostgreSQL]
+              required:
+                - frontend
+                - backend
+                - database
+
+            - properties:
+                domain:
+                  const: HealthCare
+                frontend:
+                  title: UI Framework
+                  type: string
+                  enum: [Three.js, ReactJs, Angular 2+]
+                backend:
+                  title: Backend Platform
+                  type: string
+                  enum: [Springboot, ASP.NET]
+                database:
+                  title: Database
+                  type: string
+                  enum: [MYSQL, PostgreSQL]
+              required:
+                - frontend
+                - backend
+                - database
+
+            - properties:
+                domain:
+                  const: Education
+                frontend:
+                  title: UI Framework
+                  type: string
+                  enum: [Vue.js, Next.js, Typescript, Three.js, ReactJs, Angular 2+]
+                backend:
+                  title: Backend Platform
+                  type: string
+                  enum:
+                    - Java
+                    - Python
+                    - Ruby
+                    - PHP Kotlin
+                    - C sharp
+                    - Perl
+                    - Scala
+                    - Go
+                    - Djangi
+                    - Springboot
+                    - ASP.NET
+                database:
+                  title: Database
+                  type: string
+                  enum: [MYSQL, PostgreSQL]
+              required:
+                - frontend
+                - backend
+                - database
 
   steps:
-    # Step 1: Select domain (passed as parameter)
-    - id: select-domain
-      name: Domain Selected
-      action: pass
-      input:
-        domain: ${{ parameters.domain }}
-
-    # Step 2: Select Frontend based on domain
-    - id: select-frontend
-      name: Select UI Framework
-      action: pass
-      input:
-        domain: ${{ steps.select-domain.output.domain }}
-      parameters:
-        frontend:
-          oneOf:
-            - title: Banking UI Framework
-              if:
-                properties:
-                  domain:
-                    const: Banking
-              then:
-                type: string
-                enum: [Vue.js, Next.js, Typescript]
-            - title: Insurance UI Framework
-              if:
-                properties:
-                  domain:
-                    const: Insurance
-              then:
-                type: string
-                enum: [React, Angular]
-            - title: HealthCare UI Framework
-              if:
-                properties:
-                  domain:
-                    const: HealthCare
-              then:
-                type: string
-                enum: [Three.js, ReactJs, Angular 2+]
-            - title: Education UI Framework
-              if:
-                properties:
-                  domain:
-                    const: Education
-              then:
-                type: string
-                enum: [Vue.js, Next.js, Typescript, Three.js, ReactJs, Angular 2+]
-
-    # Step 3: Select Backend based on domain
-    - id: select-backend
-      name: Select Backend Platform
-      action: pass
-      input:
-        domain: ${{ steps.select-domain.output.domain }}
-      parameters:
-        backend:
-          oneOf:
-            - title: Banking Backend Platform
-              if:
-                properties:
-                  domain:
-                    const: Banking
-              then:
-                type: string
-                enum: [Java, Python, Ruby]
-            - title: Insurance Backend Platform
-              if:
-                properties:
-                  domain:
-                    const: Insurance
-              then:
-                type: string
-                enum: [Scala, Go, Django]
-            - title: HealthCare Backend Platform
-              if:
-                properties:
-                  domain:
-                    const: HealthCare
-              then:
-                type: string
-                enum: [Springboot, ASP.NET]
-            - title: Education Backend Platform
-              if:
-                properties:
-                  domain:
-                    const: Education
-              then:
-                type: string
-                enum: [Java, Python, Ruby, PHP Kotlin, C sharp, Perl, Scala, Go, Djangi, Springboot, ASP.NET]
-
-    # Step 4: Select Database based on domain
-    - id: select-database
-      name: Select Database
-      action: pass
-      input:
-        domain: ${{ steps.select-domain.output.domain }}
-      parameters:
-        database:
-          oneOf:
-            - title: Banking Database
-              if:
-                properties:
-                  domain:
-                    const: Banking
-              then:
-                type: string
-                enum: [MYSQL, PostgreSQL]
-            - title: Insurance Database
-              if:
-                properties:
-                  domain:
-                    const: Insurance
-              then:
-                type: string
-                enum: [MYSQL, PostgreSQL]
-            - title: HealthCare Database
-              if:
-                properties:
-                  domain:
-                    const: HealthCare
-              then:
-                type: string
-                enum: [MYSQL, PostgreSQL]
-            - title: Education Database
-              if:
-                properties:
-                  domain:
-                    const: Education
-              then:
-                type: string
-                enum: [MYSQL, PostgreSQL]
-
-    # Step 5: Fetch skeleton and values
     - id: fetch
       name: Fetch Skeleton
       action: fetch:template
@@ -182,37 +130,6 @@ spec:
         url: ./skeleton
         values:
           domain: ${{ parameters.domain }}
-          frontend: ${{ steps.select-frontend.parameters.frontend }}
-          backend: ${{ steps.select-backend.parameters.backend }}
-          database: ${{ steps.select-database.parameters.database }}
-          repoUrl: ${{ parameters.repoUrl }}
-
-    # Step 6: Publish to GitHub
-    - id: publish
-      name: Publish to GitHub
-      action: publish:github
-      input:
-        description: Generated project for ${{ parameters.domain }} with ${{ steps.select-frontend.parameters.frontend }} frontend and ${{ steps.select-backend.parameters.backend }} backend.
-        repoUrl: ${{ parameters.repoUrl }}
-
-    # Step 7: Register in Catalog
-    - id: register
-      name: Register in Catalog
-      action: catalog:register
-      input:
-        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
-        catalogInfoPath: '/catalog-info.yaml'
-
-  output:
-    links:
-      - title: Repository
-        url: ${{ steps.publish.output.remoteUrl }}
-      - title: Open in VSCode
-        url: https://vscode.dev/github/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
-      - title: Open in Replit
-        url: https://replit.com/github/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
-      - title: Open in AI Studio
-        url: https://aistudio.example.com/project/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
-      - title: Open in Catalog
-        icon: catalog
-        entityRef: ${{ steps.register.output.entityRef }}
+          frontend: ${{ parameters.frontend }}
+          backend: ${{ parameters.backend }}
+          database: ${{ parameters.database }}
