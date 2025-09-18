@@ -27,6 +27,18 @@ spec:
             - Insurance
             - HealthCare
             - Education
+    - title: Repository URL
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+              - github.kyndryl.net
 
   steps:
     # Step 1: Select domain (passed as parameter)
@@ -162,15 +174,7 @@ spec:
                 type: string
                 enum: [MYSQL, PostgreSQL]
 
-    # Step 5: Repository URL
-    - id: repo-url
-      name: Repository URL
-      action: pass
-      input:
-        repoUrl: ${{ parameters.repoUrl }}
-
-  steps:
-    # Fetch skeleton and values
+    # Step 5: Fetch skeleton and values
     - id: fetch
       name: Fetch Skeleton
       action: fetch:template
@@ -181,17 +185,17 @@ spec:
           frontend: ${{ steps.select-frontend.parameters.frontend }}
           backend: ${{ steps.select-backend.parameters.backend }}
           database: ${{ steps.select-database.parameters.database }}
-          repoUrl: ${{ steps.repo-url.input.repoUrl }}
+          repoUrl: ${{ parameters.repoUrl }}
 
-    # Publish generated project to GitHub
+    # Step 6: Publish to GitHub
     - id: publish
       name: Publish to GitHub
       action: publish:github
       input:
         description: Generated project for ${{ parameters.domain }} with ${{ steps.select-frontend.parameters.frontend }} frontend and ${{ steps.select-backend.parameters.backend }} backend.
-        repoUrl: ${{ steps.repo-url.input.repoUrl }}
+        repoUrl: ${{ parameters.repoUrl }}
 
-    # Register the project in catalog
+    # Step 7: Register in Catalog
     - id: register
       name: Register in Catalog
       action: catalog:register
@@ -204,11 +208,11 @@ spec:
       - title: Repository
         url: ${{ steps.publish.output.remoteUrl }}
       - title: Open in VSCode
-        url: https://vscode.dev/github/${{ steps.repo-url.input.repoUrl | parseRepoUrl | pick('owner') }}/${{ steps.repo-url.input.repoUrl | parseRepoUrl | pick('repo') }}
+        url: https://vscode.dev/github/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
       - title: Open in Replit
-        url: https://replit.com/github/${{ steps.repo-url.input.repoUrl | parseRepoUrl | pick('owner') }}/${{ steps.repo-url.input.repoUrl | parseRepoUrl | pick('repo') }}
+        url: https://replit.com/github/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
       - title: Open in AI Studio
-        url: https://aistudio.example.com/project/${{ steps.repo-url.input.repoUrl | parseRepoUrl | pick('owner') }}/${{ steps.repo-url.input.repoUrl | parseRepoUrl | pick('repo') }}
+        url: https://aistudio.example.com/project/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
       - title: Open in Catalog
         icon: catalog
         entityRef: ${{ steps.register.output.entityRef }}
