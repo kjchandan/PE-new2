@@ -122,6 +122,19 @@ spec:
                 - backend
                 - database
 
+    - title: Repository Info
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+              - github.kyndryl.net
+
   steps:
     - id: fetch
       name: Fetch Skeleton
@@ -133,3 +146,36 @@ spec:
           frontend: ${{ parameters.frontend }}
           backend: ${{ parameters.backend }}
           database: ${{ parameters.database }}
+          repoUrl: ${{ parameters.repoUrl }}
+
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        description: Generated project for ${{ parameters.domain }} domain using ${{ parameters.frontend }} frontend, ${{ parameters.backend }} backend, and ${{ parameters.database }} database.
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: 🔗 Open GitHub Repository
+        icon: github
+        url: ${{ steps.publish.output.remoteUrl }}
+
+      - title: 💻 Open in VSCode
+        icon: code
+        url: https://vscode.dev/github/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+
+      - title: 🚀 Open in Replit
+        icon: rocket
+        url: https://replit.com/github/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+
+      - title: 📘 Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
