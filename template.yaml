@@ -46,10 +46,7 @@ spec:
                   title: Database
                   type: string
                   enum: [MYSQL, PostgreSQL]
-              required:
-                - frontend
-                - backend
-                - database
+              required: [frontend, backend, database]
 
             - properties:
                 domain:
@@ -66,10 +63,7 @@ spec:
                   title: Database
                   type: string
                   enum: [MYSQL, PostgreSQL]
-              required:
-                - frontend
-                - backend
-                - database
+              required: [frontend, backend, database]
 
             - properties:
                 domain:
@@ -86,10 +80,7 @@ spec:
                   title: Database
                   type: string
                   enum: [MYSQL, PostgreSQL]
-              required:
-                - frontend
-                - backend
-                - database
+              required: [frontend, backend, database]
 
             - properties:
                 domain:
@@ -117,23 +108,7 @@ spec:
                   title: Database
                   type: string
                   enum: [MYSQL, PostgreSQL]
-              required:
-                - frontend
-                - backend
-                - database
-
-    - title: Repository Info
-      required:
-        - repoUrl
-      properties:
-        repoUrl:
-          title: Repository Location
-          type: string
-          ui:field: RepoUrlPicker
-          ui:options:
-            allowedHosts:
-              - github.com
-              - github.kyndryl.net
+              required: [frontend, backend, database]
 
   steps:
     - id: fetch
@@ -146,36 +121,23 @@ spec:
           frontend: ${{ parameters.frontend }}
           backend: ${{ parameters.backend }}
           database: ${{ parameters.database }}
-          repoUrl: ${{ parameters.repoUrl }}
-
-    # - id: publish
-    #   name: Publish to GitHub
-    #   action: publish:github
-    #   input:
-    #     repoUrl: ${{ parameters.repoUrl }}
-    #     description: Generated project for ${{ parameters.domain }} domain using ${{ parameters.frontend }} frontend, ${{ parameters.backend }} backend, and ${{ parameters.database }} database.
-
-    # - id: register
-    #   name: Register in Catalog
-    #   action: catalog:register
-    #   input:
-    #     repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
-    #     catalogInfoPath: /catalog-info.yaml
 
   output:
+    text:
+      - title: ✅ Project generated successfully
+        content: |
+          You selected:
+          - Domain: ${{ parameters.domain }}
+          - Frontend: ${{ parameters.frontend }}
+          - Backend: ${{ parameters.backend }}
+          - Database: ${{ parameters.database }}
+
+    # Optional: If you want to keep "Open in VSCode" or Replit
     links:
-      - title: 🔗 Open GitHub Repository
-        icon: github
-        url: ${{ steps.publish.output.remoteUrl }}
-
-      - title: 💻 Open in VSCode
+      - title: 💻 Open in VSCode (optional example)
         icon: code
-        url: https://vscode.dev/github/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
+        url: https://vscode.dev/
 
-      - title: 🚀 Open in Replit
+      - title: 🚀 Open in Replit (optional example)
         icon: rocket
-        url: https://replit.com/github/${{ parameters.repoUrl | parseRepoUrl | pick('owner') }}/${{ parameters.repoUrl | parseRepoUrl | pick('repo') }}
-
-      - title: 📘 Open in Catalog
-        icon: catalog
-        entityRef: ${{ steps.register.output.entityRef }}
+        url: https://replit.com/
