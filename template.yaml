@@ -148,19 +148,19 @@ spec:
           database: ${{ parameters.database }}
           repoUrl: ${{ parameters.repoUrl }}
 
-    - id: publish
-      name: Publish to GitHub
-      action: publish:github
-      input:
-        repoUrl: ${{ parameters.repoUrl }}
-        description: Generated project for ${{ parameters.domain }} domain using ${{ parameters.frontend }} frontend, ${{ parameters.backend }} backend, and ${{ parameters.database }} database.
+    # - id: publish
+    #   name: Publish to GitHub
+    #   action: publish:github
+    #   input:
+    #     repoUrl: ${{ parameters.repoUrl }}
+    #     description: Generated project for ${{ parameters.domain }} domain using ${{ parameters.frontend }} frontend, ${{ parameters.backend }} backend, and ${{ parameters.database }} database.
 
-    - id: register
-      name: Register in Catalog
-      action: catalog:register
-      input:
-        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
-        catalogInfoPath: /catalog-info.yaml
+    # - id: register
+    #   name: Register in Catalog
+    #   action: catalog:register
+    #   input:
+    #     repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+    #     catalogInfoPath: /catalog-info.yaml
 
   output:
     links:
